@@ -1,0 +1,183 @@
+parse xml file java jackson
+
+Jackson FasterXML library provides developers easy access to parse XML file. In this example, you will learn how to parse a xml file as shown below. 
+
+<studentinfo>
+	<student id="1">
+		<firstname>FirstNameA</firstname>
+		<lastname>LastNameA</lastname>
+		<major>Math</major>
+		<department>Science</department>
+	</student>
+	<student id="2">
+		<firstname>FirstNameB</firstname>
+		<lastname>LastNameB</lastname>
+		<major>Programming</major>
+		<department>Science</department>
+	</student>
+	<student id="3">
+		<firstname>FirstNameC</firstname>
+		<lastname>LastNameC</lastname>
+		<major>English</major>
+		<department>Liberal Art</department>
+	</student>
+</studentinfo>
+File name is "temp.xml". Create a maven-based java project and add the following dependencies in the pom.xml file.  
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+            <version>2.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.woodstox</groupId>
+            <artifactId>woodstox-core-asl</artifactId>
+            <version>4.1.4</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.stream</groupId>
+            <artifactId>stax-api</artifactId>
+            <version>1.0-2</version>
+            <scope>compile</scope>
+        </dependency>
+StudentInfo.java class (write the following code)
+
+package com.example.xml;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+@JacksonXmlRootElement(localName = "studentinfo")
+public class StudentInfo {
+    @JacksonXmlProperty(localName = "student")
+    @JacksonXmlElementWrapper(useWrapping = false)
+    private Student[] students;
+
+    public StudentInfo(Student[] students) {
+        this.students = students;
+    }
+
+    public StudentInfo()
+    {
+
+    }
+    public Student[] getStudents() {
+        return students;
+    }
+
+    public void setStudents(Student[] students) {
+        this.students = students;
+    }
+}
+Student.java class (write the following code)
+
+package com.example.xml;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+public class Student {
+    @JacksonXmlProperty(isAttribute=true)
+    private int id;
+    @JacksonXmlProperty(localName="firstname")
+    private String firstname;
+
+    public String getFirstname() {
+        return firstname;
+    }
+    public void setFirstname(String firstname) {
+        this.firstname = firstname;
+    }
+    public String getLastname() {
+        return lastname;
+    }
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
+    }
+    public String getMajor() {
+        return major;
+    }
+    public void setMajor(String major) {
+        this.major = major;
+    }
+    public String getDepartment() {
+        return department;
+    }
+    public void setDepartment(String department) {
+        this.department = department;
+    }
+    @JacksonXmlProperty(localName="lastname")
+    private String lastname;
+    @JacksonXmlProperty(localName="major")
+    private String major;
+    @JacksonXmlProperty(localName="department")
+    private String department;
+    public Student(int id, String firstname, String lastname, String major, String department) {
+        this.id = id;
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.major = major;
+        this.department = department;
+    }
+    public Student()
+    {
+
+    }
+    public int getId() {
+        return id;
+
+    }
+}
+ReadXmlFileJackson.java class (write the following code)
+
+package com.example.xml;
+import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import javax.xml.stream.XMLInputFactory;
+import java.io.*;
+public class ReadXmlFileJackson {
+    public static void main(String[] args) {
+
+        StringBuilder xmlContent = new StringBuilder();
+        String projectPath = System.getProperty("user.dir");
+        System.out.println(projectPath);
+        File XmlFile = new File(projectPath + File.separator + "temp.xml");
+        System.out.println(XmlFile);
+
+        XMLInputFactory f = XMLInputFactory.newFactory();
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new FileReader(XmlFile));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        String s;
+
+        try {
+            while ((s = br.readLine()) != null) {
+                xmlContent.append(s);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println(xmlContent.toString());
+        JacksonXmlModule module = new JacksonXmlModule();
+        XmlMapper mapper = new XmlMapper(f);
+        StudentInfo studentInfo= null;
+        try {
+            studentInfo = mapper.readValue(xmlContent.toString(), StudentInfo.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Student[] students=studentInfo.getStudents();
+       int totalStudents=students.length;
+        System.out.println("total students: " +totalStudents);
+        for(int j=0;j<totalStudents;j++)
+        {
+            System.out.println( "Id: "+ students[j].getId() +"  ||"+ "  First Name: " +students[j].getFirstname()+ "    ||"+"  Last Name: " +students[j].getLastname()+ "   ||"+"  Major: " +students[j].getMajor()+"   ||"+ "  Department: " +students[j].getDepartment());
+        }
+
+    }
+}
+Run the main method in the ReadXmlFileJackson.java class. You will see the result below.
+
+total students: 3
+Id: 1  ||  First Name: FirstNameA    ||  Last Name: LastNameA   ||  Major: Math   ||  Department: Science
+Id: 2  ||  First Name: FirstNameB    ||  Last Name: LastNameB   ||  Major: Programming   ||  Department: Science
+Id: 3  ||  First Name: FirstNameC    ||  Last Name: LastNameC   ||  Major: English   ||  Department: Liberal Art

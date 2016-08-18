@@ -1,0 +1,100 @@
+Create XML File in Java
+
+In Java, using DocumentBuilderFactory, DocumentBuilder,TransformerFactory and Transformer objects, you can create a xml document. See the example below. 
+
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<TestCases>
+  <Testid="1">
+    <Name>Login</Name>
+    <TestModule>Login Dashboard</TestModule>
+    <TestType>Smoke Test</TestType>
+    <TestExecution>Manual</TestExecution>
+  </Test>
+</TestCases>
+WriteXmlFile.java (write the code below)
+
+package com.example.xml;
+
+import java.io.File;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+public class WriteXmlFile {
+
+    public static void main(String[] args)
+    {
+        CreateAXmlFile("TestCases.xml");
+    }
+
+    public static void CreateAXmlFile(String fileName)
+    {
+        try {
+
+            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+
+            // root elements for Test Case
+            Document doc = docBuilder.newDocument();
+            Element rootElement = doc.createElement("TestCases");
+            doc.appendChild(rootElement);
+
+            // test elements
+            Element test = doc.createElement("Test");
+            rootElement.appendChild(test);
+
+            // set attribute to test element
+            Attr attr = doc.createAttribute("id");
+            attr.setValue("1");
+            test.setAttributeNode(attr);
+
+            // Test Name name elements
+            Element testName = doc.createElement("Name");
+            testName.appendChild(doc.createTextNode("Login"));
+            test.appendChild(testName);
+
+            // Test Module elements
+            Element testModule = doc.createElement("TestModule");
+            testModule.appendChild(doc.createTextNode("Login Dashboard"));
+            test.appendChild(testModule);
+
+            // Test Type elements
+            Element testType = doc.createElement("TestType");
+            testType.appendChild(doc.createTextNode("Smoke Test"));
+            test.appendChild(testType);
+
+            // test Execution elements
+            Element testExecution = doc.createElement("TestExecution");
+            testExecution.appendChild(doc.createTextNode("Manual"));
+            test.appendChild(testExecution);
+
+            // write the content into xml file
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            //enable indent on the xml file
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+            DOMSource source = new DOMSource(doc);
+            StreamResult result = new StreamResult(new File(System.getProperty("user.dir")+File.separator+fileName));
+
+               transformer.transform(source, result);
+
+            System.out.println("File saved!");
+
+        } catch (ParserConfigurationException pce) {
+            pce.printStackTrace();
+        } catch (TransformerException tfe) {
+            tfe.printStackTrace();
+        }
+    }
+
+}

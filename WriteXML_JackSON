@@ -1,0 +1,192 @@
+write xml file java jackson
+
+In this example, you will learn how to use Jackson to write a xml file. Here is the xml file format we are going to create.
+
+<studentinfo>
+	<student id="1">
+		<firstname>FirstNameA</firstname>
+		<lastname>LastNameA</lastname>
+		<major>Math</major>
+		<department>Science</department>
+	</student>
+	<student id="2">
+		<firstname>FirstNameB</firstname>
+		<lastname>LastNameB</lastname>
+		<major>Programming</major>
+		<department>Science</department>
+	</student>
+	<student id="3">
+		<firstname>FirstNameC</firstname>
+		<lastname>LastNameC</lastname>
+		<major>English</major>
+		<department>Liberal Art</department>
+	</student>
+</studentinfo>
+Jackson is a multi-purpose Java library for processing JSON and XML data format. For details, please check out the site http://wiki.fasterxml.com/JacksonHome
+
+Create a Maven-based Java project. To use Jackson 2.x compatible version of this extension on Maven-based projects, use following dependency:
+
+<dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+            <version>2.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.woodstox</groupId>
+            <artifactId>woodstox-core-asl</artifactId>
+            <version>4.1.4</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.stream</groupId>
+            <artifactId>stax-api</artifactId>
+            <version>1.0-2</version>
+            <scope>compile</scope>
+        </dependency>
+StudentInfo.java (see the code below)
+
+package com.example.xml;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+@JacksonXmlRootElement(localName = "studentinfo")
+public class StudentInfo {
+    @JacksonXmlProperty(localName = "student")
+    @JacksonXmlElementWrapper(useWrapping = false)
+    private Student[] students;
+
+    public StudentInfo(Student[] students) {
+        this.students = students;
+    }
+
+    public StudentInfo()
+    {
+
+    }
+    public Student[] getStudents() {
+        return students;
+    }
+
+    public void setStudents(Student[] students) {
+        this.students = students;
+    }
+}
+Student.java (see the code below)
+
+package com.example.xml;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+public class Student {
+
+    @JacksonXmlProperty(isAttribute=true)
+    private int id;
+    @JacksonXmlProperty(localName="firstname")
+    private String firstname;
+
+    public String getFirstname() {
+        return firstname;
+    }
+
+    public void setFirstname(String firstname) {
+        this.firstname = firstname;
+    }
+
+    public String getLastname() {
+        return lastname;
+    }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
+    }
+
+    public String getMajor() {
+        return major;
+    }
+
+    public void setMajor(String major) {
+        this.major = major;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
+    }
+
+    @JacksonXmlProperty(localName="lastname")
+    private String lastname;
+    @JacksonXmlProperty(localName="major")
+    private String major;
+    @JacksonXmlProperty(localName="department")
+    private String department;
+
+    public Student(int id, String firstname, String lastname, String major, String department) {
+        this.id = id;
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.major = major;
+        this.department = department;
+    }
+    public Student()
+    {
+    }
+
+    public int getId() {
+        return id;
+
+    }
+}
+
+WriteXmlFileJackson.java (see the code below)
+
+package com.example.xml;
+import java.io.File;
+import java.io.IOException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+
+public class WriteXmlFileJackson {
+    public static void main(String[] args) throws IOException {
+        JacksonXmlModule module = new JacksonXmlModule();
+        module.setDefaultUseWrapper(false);
+        XmlMapper xmlMapper = new XmlMapper(module);
+        Student[] students = new Student[]{new Student(1, "FirstNameA", "LastNameA", "Math", "Science"),
+                new Student(2, "FirstNameB", "LastNameB", "Programming", "Science"),
+                new Student(3, "FirstNameC", "LastNameC", "English", "Liberal Art")};
+        StudentInfo studentInfo = new StudentInfo(students);
+        try {
+            String xml = xmlMapper.writeValueAsString(studentInfo);
+            xmlMapper.writeValue(new File("temp.xml"), studentInfo);
+            System.out.println(xml);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+    }
+    
+}
+Run the main method in the WriteXmlFileJackson class. You will see that "temp.xml" file is created with the xml content below
+
+temp.xml
+
+<studentinfo>
+	<student id="1">
+		<firstname>FirstNameA</firstname>
+		<lastname>LastNameA</lastname>
+		<major>Math</major>
+		<department>Science</department>
+	</student>
+	<student id="2">
+		<firstname>FirstNameB</firstname>
+		<lastname>LastNameB</lastname>
+		<major>Programming</major>
+		<department>Science</department>
+	</student>
+	<student id="3">
+		<firstname>FirstNameC</firstname>
+		<lastname>LastNameC</lastname>
+		<major>English</major>
+		<department>Liberal Art</department>
+	</student>
+</studentinfo>
